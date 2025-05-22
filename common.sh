@@ -13,25 +13,25 @@ mkdir -p $LOGS_FOLDER
 echo "Script started executing at: $(date)" | tee -a $LOG_FILE
 
 app_setup(){
-    id roboshop
-if [ $? -ne 0 ]
-then
-    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOG_FILE
-    VALIDATE $? "Creating roboshop system user"
-else
-    echo -e "System user roboshop already created ... $Y SKIPPING $N"
-fi
-mkdir -p /app 
-VALIDATE $? "Creating app directory"
+    id roboshop &>>$LOG_FILE
+    if [ $? -ne 0 ]
+    then
+        useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOG_FILE
+        VALIDATE $? "Creating roboshop system user"
+    else
+        echo -e "System user roboshop already created ... $Y SKIPPING $N"
+    fi
 
-curl -o /tmp/$app_name.zip https://roboshop-artifacts.s3.amazonaws.com/$app_name-v3.zip &>>$LOG_FILE
-VALIDATE $? "Downloading $app_name"
+    mkdir -p /app 
+    VALIDATE $? "Creating app directory"
 
-rm -rf /app/*
-cd /app 
-unzip /tmp/$app_name.zip &>>$LOG_FILE
-VALIDATE $? "unzipping $app_name"
+    curl -o /tmp/$app_name.zip https://roboshop-artifacts.s3.amazonaws.com/$app_name-v3.zip &>>$LOG_FILE
+    VALIDATE $? "Downloading $app_name"
 
+    rm -rf /app/*
+    cd /app 
+    unzip /tmp/$app_name.zip &>>$LOG_FILE
+    VALIDATE $? "unzipping $app_name"
 }
 
 nodejs_setup(){
@@ -50,14 +50,15 @@ VALIDATE $? "Installing Dependencies"
 }
 
 systemd_setup(){
-cp $SCRIPT_DIR/$app_name.service /etc/systemd/system/$app_name.service
-VALIDATE $? "Copying $app_name service"
+    cp $SCRIPT_DIR/$app_name.service /etc/systemd/system/$app_name.service
+    VALIDATE $? "Copying $app_name service"
 
-systemctl daemon-reload &>>$LOG_FILE
-systemctl enable $app_name  &>>$LOG_FILE
-systemctl start $app_name
-VALIDATE $? "Starting $app_name"
+    systemctl daemon-reload &>>$LOG_FILE
+    systemctl enable $app_name  &>>$LOG_FILE
+    systemctl start $app_name
+    VALIDATE $? "Starting $app_name"
 }
+
 
 # check the user has root priveleges or not
 check_root(){
