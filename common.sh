@@ -25,12 +25,12 @@ mkdir -p /app
 VALIDATE $? "Creating app directory"
 
 curl -o /tmp/$app_name.zip https://roboshop-artifacts.s3.amazonaws.com/$app_name-v3.zip &>>$LOG_FILE
-VALIDATE $? "Downloading Catalogue"
+VALIDATE $? "Downloading $app_name"
 
 rm -rf /app/*
 cd /app 
-unzip /tmp/catalogue.zip &>>$LOG_FILE
-VALIDATE $? "unzipping catalogue"
+unzip /tmp/$app_name.zip &>>$LOG_FILE
+VALIDATE $? "unzipping $app_name"
 
 }
 
